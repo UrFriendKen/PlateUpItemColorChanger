@@ -35,7 +35,7 @@ namespace KitchenItemColorChanger
             _materials.Clear();
             _defaultColors.Clear();
 
-            foreach (MeshRenderer meshRenderer in transform.GetComponentsInChildren<MeshRenderer>())
+            foreach (MeshRenderer meshRenderer in transform.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
             {
                 Transform rendererTransform = meshRenderer.transform;
                 Transform stopAt = Container;

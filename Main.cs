@@ -14,7 +14,7 @@ namespace KitchenItemColorChanger
     {
         public const string MOD_GUID = $"IcedMilo.PlateUp.{MOD_NAME}";
         public const string MOD_NAME = "Item Color Changer";
-        public const string MOD_VERSION = "0.1.0";
+        public const string MOD_VERSION = "0.1.1";
 
         internal static PreferenceSystemManager PrefManager;
 
@@ -75,7 +75,7 @@ namespace KitchenItemColorChanger
             int propCount = 0;
             Transform transform = gameObject.transform;
             Main.LogInfo($"{gdoID}");
-            foreach (MeshRenderer meshRenderer in gameObject.GetComponentsInChildren<MeshRenderer>())
+            foreach (MeshRenderer meshRenderer in gameObject.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
             {
                 string[] pathParts = meshRenderer.transform.GetPath(transform, includeStopAt: true).Split('/');
                 if (shouldClone)

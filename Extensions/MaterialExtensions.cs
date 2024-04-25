@@ -15,7 +15,9 @@ namespace KitchenItemColorChanger.Extensions
 
         public static bool SupportsShaderColorChange(Shader shader)
         {
-            return _shaderColorKeys.ContainsKey(shader?.name);
+            if (shader?.name == null)
+                return false;
+            return _shaderColorKeys.ContainsKey(shader.name);
         }
 
         public static bool SupportsColorChange(this Material material)
@@ -25,7 +27,7 @@ namespace KitchenItemColorChanger.Extensions
 
         private static bool TryGetColorPropertyName(this Material material, out string propertyName)
         {
-            if (material == null ||
+            if (material?.shader?.name == null ||
                 !_shaderColorKeys.TryGetValue(material.shader.name, out propertyName))
             {
                 propertyName = default;

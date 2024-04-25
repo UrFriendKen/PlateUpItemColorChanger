@@ -1,5 +1,4 @@
-﻿using Kitchen;
-using KitchenData;
+﻿using KitchenData;
 using KitchenItemColorChanger.Extensions;
 using KitchenUITools;
 using System;
@@ -36,7 +35,7 @@ namespace KitchenItemColorChanger
         {
             Appliances = GameData.Main.Get<Appliance>()
                 .Where(appliance => appliance.Prefab != null &&
-                    appliance.Prefab.GetComponentsInChildren<MeshRenderer>()
+                    appliance.Prefab.GetComponentsInChildren<MeshRenderer>(includeInactive: true)
                         .SelectMany(meshRenderer => meshRenderer.sharedMaterials)
                         .Where(material => material.SupportsColorChange())
                         .Any())
@@ -45,7 +44,7 @@ namespace KitchenItemColorChanger
 
             Items = GameData.Main.Get<Item>()
                 .Where(item => item.Prefab != null &&
-                    item.Prefab.GetComponentsInChildren<MeshRenderer>()
+                    item.Prefab.GetComponentsInChildren<MeshRenderer>(includeInactive: true)
                         .SelectMany(meshRenderer => meshRenderer.sharedMaterials)
                         .Where(material => material.SupportsColorChange())
                         .Any())
@@ -61,6 +60,7 @@ namespace KitchenItemColorChanger
 
         EditableItem _selectedGDOItem = null;
         Texture _selectedGameObjectTexture = null;
+        string _editListFilter = string.Empty;
         Vector2 _editScrollPosition = Vector2.zero;
         List<MaterialItem> _editableMaterials = new List<MaterialItem>();
 
@@ -232,6 +232,8 @@ namespace KitchenItemColorChanger
                 if (_selectedGameObjectTexture)
                     GUILayout.Box(_selectedGameObjectTexture);
 
+                _editListFilter = GUILayout.TextField(_editListFilter).ToLowerInvariant();
+
                 _editScrollPosition = GUILayout.BeginScrollView(_editScrollPosition);
 
                 bool resetAllPressed = GUILayout.Button("Reset All");
@@ -243,6 +245,10 @@ namespace KitchenItemColorChanger
                 Color hexColorToApply;
                 foreach (MaterialItem materialItem in _editableMaterials)
                 {
+                    if (!string.IsNullOrEmpty(_editListFilter) &&
+                        !materialItem.DisplayName.ToLowerInvariant().Contains(_editListFilter))
+                        continue;
+
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(materialItem.DisplayName);
 
@@ -291,7 +297,7 @@ namespace KitchenItemColorChanger
         {
             _editableMaterials.Clear();
             Transform rootTransform = gameObject.transform;
-            foreach (MeshRenderer meshRenderer in gameObject.GetComponentsInChildren<MeshRenderer>())
+            foreach (MeshRenderer meshRenderer in gameObject.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
             {
                 string[] pathParts = meshRenderer.transform.GetPath(rootTransform, includeStopAt: true).Split('/');
                 pathParts[0] += "(Clone)";
@@ -338,7 +344,7 @@ namespace KitchenItemColorChanger
             {
                 Transform instanceTransform = instance.transform;
 
-                foreach (MeshRenderer meshRenderer in instance.GetComponentsInChildren<MeshRenderer>())
+                foreach (MeshRenderer meshRenderer in instance.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
                 {
                     string meshRendererPath = $"{meshRenderer.transform.GetPath(instanceTransform, includeStopAt: true)}";
                     Material[] meshInstanceMaterials = meshRenderer.materials;
